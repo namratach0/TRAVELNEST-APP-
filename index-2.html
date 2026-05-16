@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TravelNest – Tourism Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- ============================================================
+       STYLES — all CSS lives here (no external files)
+       Sections:
+         1. CSS Variables & Reset
+         2. Typography
+         3. Navbar
+         4. Hero
+         5. Stats Bar
+         6. Toolbar (search / filter / sort)
+         7. Cards Grid
+         8. Modal (Add / Edit form)
+         9. Empty State
+        10. Toast Notifications
+        11. Scroll-to-top button
+        12. Dark Mode overrides
+        13. Animations
+        14. Responsive breakpoints
+  ============================================================ -->
+  <style>
+    /* ── 1. CSS VARIABLES & RESET ─────────────────────────────── */
+    :root {
+      --sky:        #3B9EE0;
+      --sky-dark:   #2279BE;
+      --sky-light:  #EBF5FB;
+      --mint:       #4ECBA3;
+      --mint-light: #E8F8F3;
+      --coral:      #F76C6C;
+      --gold:       #F5A623;
+      --bg:         #F4F7FB;
+      --surface:    #FFFFFF;
+      --surface2:   #EEF3F9;
+      --border:     #D9E4F0;
+      --text:       #1A2A3A;
+      --text-2:     #5A7085;
+      --text-3:     #8FA3B5;
+      --shadow-sm:  0 2px 8px rgba(30,80,140,.07);
+      --shadow-md:  0 6px 24px rgba(30,80,140,.11);
+      --shadow-lg:  0 16px 48px rgba(30,80,140,.14);
+      --radius:     16px;
+      --radius-sm:  10px;
+      --transition: .22s cubic-bezier(.4,0,.2,1);
+    }
+    [data-theme="dark"] {
+      --bg:       #0F1923;
+      --surface:  #172130;
+      --surface2: #1E2D40;
+      --border:   #253547;
+      --text:     #E8F0F8;
+      --text-2:   #8BAABF;
+      --text-3:   #5A7385;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
+      --shadow-md: 0 6px 24px rgba(0,0,0,.4);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,.5);
+      --sky-light: #172130;
+      --mint-light:#172130;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background var(--transition), color var(--transition);
+    }
+    img { max-width: 100%; display: block; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+    input, select, textarea { font-family: inherit; outline: none; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── 2. TYPOGRAPHY ────────────────────────────────────────── */
+    h1, h2, h3 { font-family: 'Playfair Display', serif; line-height: 1.2; }
+
+    /* ── 3. NAVBAR ────────────────────────────────────────────── */
+    .navbar {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background var(--transition);
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: .6rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--sky);
+    }
+    .nav-brand .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--sky), var(--mint));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .nav-actions { display: flex; align-items: center; gap: .8rem; }
+    .btn-add-trip {
+      background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+      color: #fff; padding: .55rem 1.2rem;
+      border-radius: 999px; font-weight: 600; font-size: .9rem;
+      display: flex; align-items: center; gap: .4rem;
+      box-shadow: 0 4px 14px rgba(59,158,224,.35);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .btn-add-trip:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,158,224,.45); }
+    .btn-theme {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--surface2); color: var(--text-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; transition: background var(--transition);
+    }
+    .btn-theme:hover { background: var(--border); }
+
+    /* ── 4. HERO ──────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #1a6fa8 0%, #3B9EE0 45%, #4ECBA3 100%);
+      color: #fff; padding: 4rem 2rem;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-content { position: relative; max-width: 640px; margin: 0 auto; }
+    .hero-eyebrow {
+      display: inline-block; background: rgba(255,255,255,.2);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px; padding: .3rem 1rem;
+      font-size: .8rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 1.2rem;
+    }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: .8rem; }
+    .hero p { font-size: 1.1rem; opacity: .88; max-width: 480px; margin: 0 auto 2rem; }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: #fff; color: var(--sky-dark);
+      padding: .75rem 1.8rem; border-radius: 999px;
+      font-weight: 700; font-size: 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+      transition: transform var(--transition), box-shadow var(--transition);
+      cursor: pointer; border: none;
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.2); }
+
+    /* ── 5. STATS BAR ─────────────────────────────────────────── */
+    .stats-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; justify-content: center; gap: 0;
+      transition: background var(--transition);
+    }
+    .stat-item {
+      padding: 1.2rem 2.5rem; text-align: center;
+      border-right: 1px solid var(--border);
+      flex: 1; max-width: 200px;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem; font-weight: 700;
+      color: var(--sky); line-height: 1;
+    }
+    .stat-label { font-size: .78rem; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; margin-top: .2rem; }
+
+    /* ── 6. TOOLBAR ───────────────────────────────────────────── */
+    .toolbar {
+      max-width: 1200px; margin: 2rem auto 1.5rem;
+      padding: 0 2rem;
+      display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+    }
+    .search-wrap {
+      flex: 1; min-width: 200px; position: relative;
+    }
+    .search-wrap .icon {
+      position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+      color: var(--text-3); font-size: .95rem; pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%; padding: .7rem 1rem .7rem 2.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: 999px; background: var(--surface);
+      color: var(--text); font-size: .95rem;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    .search-wrap input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(59,158,224,.15); }
+    .toolbar-select {
+      padding: .7rem 1.2rem;
+      border: 1.5px solid var(--border);
+      border-radius: 999px; background: var(--surface);
+      color: var(--text); font-size: .9rem;
+      transition: border-color var(--transition), background var(--transition);
+      cursor: pointer;
+    }
+    .toolbar-select:focus { border-color: var(--sky); }
+    .results-count { color: var(--text-3); font-size: .88rem; white-space: nowrap; }
+
+    /* ── 7. CARDS GRID ────────────────────────────────────────── */
+    .cards-section { max-width: 1200px; margin: 0 auto; padding: 0 2rem 4rem; }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    /* Individual trip card */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      animation: cardIn .35s ease both;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .card-img-wrap {
+      height: 190px; overflow: hidden; position: relative;
+      background: var(--surface2);
+    }
+    .card-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .5s ease;
+    }
+    .card:hover .card-img-wrap img { transform: scale(1.04); }
+    .card-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: .5rem; color: var(--text-3); font-size: .85rem;
+    }
+    .card-img-placeholder .ph-icon { font-size: 2.2rem; }
+    .card-badge {
+      position: absolute; top: .8rem; left: .8rem;
+      background: rgba(0,0,0,.45); backdrop-filter: blur(6px);
+      color: #fff; font-size: .72rem; font-weight: 600;
+      padding: .25rem .65rem; border-radius: 999px; letter-spacing: .04em;
+    }
+    .card-fav {
+      position: absolute; top: .8rem; right: .8rem;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,.9); backdrop-filter: blur(4px);
+      border: none; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform var(--transition);
+    }
+    .card-fav:hover { transform: scale(1.15); }
+    .card-fav.active { background: #ffe8e8; }
+    .card-body { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; gap: .5rem; }
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 700; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-location { color: var(--text-2); font-size: .85rem; display: flex; align-items: center; gap: .3rem; }
+    .card-desc {
+      color: var(--text-2); font-size: .85rem; line-height: 1.5;
+      overflow: hidden; display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      flex: 1;
+    }
+    .card-meta {
+      display: flex; flex-wrap: wrap; gap: .5rem;
+      margin-top: .5rem; padding-top: .8rem;
+      border-top: 1px solid var(--border);
+    }
+    .meta-chip {
+      background: var(--sky-light); color: var(--sky-dark);
+      font-size: .75rem; font-weight: 600;
+      padding: .2rem .65rem; border-radius: 999px;
+    }
+    .meta-chip.budget { background: var(--mint-light); color: #1A7A60; }
+    .meta-chip.date   { background: #FFF3E0; color: #B06000; }
+    [data-theme="dark"] .meta-chip.date { background: #2a2010; color: #e0a030; }
+    .card-actions {
+      padding: .8rem 1.2rem;
+      display: flex; gap: .6rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn-edit, .btn-del {
+      flex: 1; padding: .5rem;
+      border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600;
+      transition: background var(--transition), color var(--transition);
+    }
+    .btn-edit { background: var(--sky-light); color: var(--sky-dark); }
+    .btn-edit:hover { background: var(--sky); color: #fff; }
+    .btn-del { background: #FDE8E8; color: #C0392B; }
+    .btn-del:hover { background: var(--coral); color: #fff; }
+
+    /* ── 8. MODAL ─────────────────────────────────────────────── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(10,20,35,.6); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--transition);
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface); border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      width: 100%; max-width: 560px; max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(24px) scale(.97);
+      transition: transform .28s cubic-bezier(.4,0,.2,1), background var(--transition);
+    }
+    .overlay.open .modal { transform: none; }
+    .modal-header {
+      padding: 1.4rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-size: 1.3rem; font-family: 'Playfair Display', serif; }
+    .btn-close {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--surface2); color: var(--text-2);
+      font-size: 1rem; display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition);
+    }
+    .btn-close:hover { background: var(--border); }
+    .modal-body { padding: 1.5rem 1.6rem; display: flex; flex-direction: column; gap: 1.1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group label { font-size: .82rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: .7rem .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--text); font-size: .95rem;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--sky);
+      box-shadow: 0 0 0 3px rgba(59,158,224,.14);
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-error { font-size: .78rem; color: var(--coral); display: none; }
+    .form-group.has-error input,
+    .form-group.has-error select,
+    .form-group.has-error textarea { border-color: var(--coral); }
+    .form-group.has-error .form-error { display: block; }
+    .modal-footer {
+      padding: 1rem 1.6rem 1.5rem;
+      display: flex; gap: .8rem; justify-content: flex-end;
+    }
+    .btn-cancel {
+      padding: .65rem 1.4rem; border-radius: 999px;
+      background: var(--surface2); color: var(--text-2);
+      font-weight: 600; font-size: .92rem;
+      transition: background var(--transition);
+    }
+    .btn-cancel:hover { background: var(--border); }
+    .btn-submit {
+      padding: .65rem 1.8rem; border-radius: 999px;
+      background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+      color: #fff; font-weight: 700; font-size: .92rem;
+      box-shadow: 0 4px 14px rgba(59,158,224,.3);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,158,224,.4); }
+
+    /* ── 9. EMPTY STATE ───────────────────────────────────────── */
+    .empty-state {
+      grid-column: 1 / -1; text-align: center; padding: 5rem 1rem;
+      display: none; flex-direction: column; align-items: center; gap: 1rem;
+    }
+    .empty-state.show { display: flex; }
+    .empty-icon {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: var(--sky-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem;
+    }
+    .empty-state h3 { font-size: 1.4rem; color: var(--text); }
+    .empty-state p { color: var(--text-3); font-size: .92rem; max-width: 320px; }
+    .btn-empty {
+      margin-top: .5rem; padding: .65rem 1.6rem; border-radius: 999px;
+      background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+      color: #fff; font-weight: 700; font-size: .92rem;
+      box-shadow: 0 4px 14px rgba(59,158,224,.3);
+      transition: transform var(--transition);
+    }
+    .btn-empty:hover { transform: translateY(-2px); }
+
+    /* ── 10. TOAST ────────────────────────────────────────────── */
+    .toast-container {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      z-index: 500; display: flex; flex-direction: column; gap: .6rem;
+    }
+    .toast {
+      background: var(--surface);
+      border-left: 4px solid var(--sky);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+      padding: .8rem 1.1rem;
+      min-width: 260px; max-width: 340px;
+      display: flex; align-items: center; gap: .7rem;
+      font-size: .88rem; font-weight: 500; color: var(--text);
+      animation: toastIn .3s ease;
+    }
+    .toast.success { border-color: var(--mint); }
+    .toast.error   { border-color: var(--coral); }
+    .toast.warning { border-color: var(--gold); }
+    .toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .toast.fadeout { animation: toastOut .3s ease forwards; }
+
+    /* ── 11. SCROLL-TO-TOP ────────────────────────────────────── */
+    .scroll-top {
+      position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 400;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--sky); color: #fff;
+      font-size: 1.1rem; box-shadow: var(--shadow-md);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--transition), transform var(--transition);
+    }
+    .scroll-top.visible { opacity: 1; pointer-events: all; }
+    .scroll-top:hover { transform: translateY(-3px); }
+
+    /* ── 12. CONFIRM DIALOG ───────────────────────────────────── */
+    .confirm-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(10,20,35,.65); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+      opacity: 0; pointer-events: none; transition: opacity var(--transition);
+    }
+    .confirm-overlay.open { opacity: 1; pointer-events: all; }
+    .confirm-box {
+      background: var(--surface); border-radius: var(--radius);
+      box-shadow: var(--shadow-lg); padding: 2rem;
+      max-width: 380px; width: 100%; text-align: center;
+      transform: scale(.93); transition: transform .25s ease, background var(--transition);
+    }
+    .confirm-overlay.open .confirm-box { transform: none; }
+    .confirm-icon { font-size: 2.5rem; margin-bottom: .5rem; }
+    .confirm-box h3 { margin-bottom: .5rem; font-size: 1.2rem; }
+    .confirm-box p { color: var(--text-2); font-size: .9rem; margin-bottom: 1.5rem; }
+    .confirm-actions { display: flex; gap: .8rem; justify-content: center; }
+    .btn-confirm-yes {
+      padding: .6rem 1.5rem; border-radius: 999px;
+      background: var(--coral); color: #fff; font-weight: 700;
+      transition: background var(--transition);
+    }
+    .btn-confirm-yes:hover { background: #c0392b; }
+    .btn-confirm-no {
+      padding: .6rem 1.5rem; border-radius: 999px;
+      background: var(--surface2); color: var(--text-2); font-weight: 600;
+      transition: background var(--transition);
+    }
+    .btn-confirm-no:hover { background: var(--border); }
+
+    /* ── 13. ANIMATIONS ───────────────────────────────────────── */
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: none; }
+      to   { opacity: 0; transform: translateX(20px); }
+    }
+
+    /* ── 14. RESPONSIVE ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .navbar { padding: 0 1rem; }
+      .nav-brand span { display: none; }
+      .hero { padding: 2.5rem 1rem; }
+      .stats-bar { flex-wrap: wrap; }
+      .stat-item { min-width: 33%; border-right: 1px solid var(--border); }
+      .toolbar { padding: 0 1rem; }
+      .cards-section { padding: 0 1rem 3rem; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .toast-container { right: 1rem; bottom: 5rem; left: 1rem; }
+      .toast { min-width: unset; max-width: unset; }
+    }
+    @media (max-width: 480px) {
+      .stat-item { min-width: 50%; padding: 1rem; }
+      .stat-num { font-size: 1.5rem; }
+    }
+
+    /* ── SECTION HEADER ───────────────────────────────────────── */
+    .section-header {
+      max-width: 1200px; margin: 2rem auto .5rem;
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .8rem;
+    }
+    .section-title { font-size: 1.4rem; font-family: 'Playfair Display', serif; }
+
+    /* Favorites filter toggle */
+    .btn-fav-filter {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .5rem 1rem; border-radius: 999px;
+      background: var(--surface2); color: var(--text-2);
+      font-size: .85rem; font-weight: 600;
+      transition: background var(--transition), color var(--transition);
+    }
+    .btn-fav-filter.active { background: #ffe8e8; color: #c0392b; }
+    .btn-fav-filter:hover { background: var(--border); }
+
+    /* Footer */
+    footer {
+      background: var(--surface); border-top: 1px solid var(--border);
+      text-align: center; padding: 1.5rem 2rem;
+      color: var(--text-3); font-size: .82rem;
+      transition: background var(--transition);
+    }
+    footer span { color: var(--sky); }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="logo-icon" style="font-size:.85rem;font-weight:700;color:#fff;letter-spacing:-.5px">TN</div>
+    <span>TravelNest</span>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-theme" id="themeToggle" title="Toggle dark mode">🌙</button>
+    <button class="btn-add-trip" id="openModal">
+      <span>+</span> Add Trip
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO SECTION
+============================================================ -->
+<section class="hero" id="top">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Your Travel Companion</div>
+    <h1>Plan Your Dream Destinations</h1>
+    <p>Discover, organise, and track your travel adventures all in one beautiful place.</p>
+    <button class="hero-cta" id="heroCta">
+      Start Planning
+    </button>
+  </div>
+</section>
+
+<!-- ============================================================
+     STATS BAR — counts are updated by updateStats()
+============================================================ -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" id="statTotal">0</div>
+    <div class="stat-label">Total Trips</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="statCats">0</div>
+    <div class="stat-label">Categories</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="statUpcoming">0</div>
+    <div class="stat-label">Upcoming</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="statFavs">0</div>
+    <div class="stat-label">Favourites</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOOLBAR — search, category filter, sort
+============================================================ -->
+<div class="toolbar">
+  <!-- Live search (searches name + country) -->
+  <div class="search-wrap">
+    <span class="icon">&#9906;</span>
+    <input type="text" id="searchInput" placeholder="Search destinations or countries…" />
+  </div>
+
+  <!-- Category filter dropdown -->
+  <select class="toolbar-select" id="categoryFilter">
+    <option value="">All Categories</option>
+    <option value="Beach">Beach</option>
+    <option value="Mountain">Mountain</option>
+    <option value="Historical">Historical</option>
+    <option value="Adventure">Adventure</option>
+    <option value="Cultural">Cultural</option>
+    <option value="City">City</option>
+    <option value="Wildlife">Wildlife</option>
+    <option value="Road Trip">Road Trip</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <!-- Sort -->
+  <select class="toolbar-select" id="sortSelect">
+    <option value="newest">Newest First</option>
+    <option value="oldest">Oldest First</option>
+    <option value="budget-asc">Budget: Low to High</option>
+    <option value="budget-desc">Budget: High to Low</option>
+    <option value="date-asc">Travel Date: Soonest</option>
+    <option value="date-desc">Travel Date: Latest</option>
+    <option value="name-asc">Name A–Z</option>
+  </select>
+</div>
+
+<!-- ============================================================
+     CARDS SECTION
+============================================================ -->
+<div class="section-header">
+  <h2 class="section-title" id="sectionTitle">All Trips</h2>
+  <div style="display:flex;gap:.7rem;align-items:center">
+    <span class="results-count" id="resultsCount"></span>
+    <button class="btn-fav-filter" id="favFilterBtn">&#9825; Favourites</button>
+  </div>
+</div>
+
+<section class="cards-section">
+  <div class="cards-grid" id="cardsGrid">
+    <!-- Cards rendered by JS -->
+
+    <!-- Empty state shown when no results -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon" style="font-size:2.4rem;color:var(--sky)">&#9992;</div>
+      <h3>No Trips Found</h3>
+      <p id="emptyMsg">You haven't added any destinations yet. Start planning your first adventure!</p>
+      <button class="btn-empty" id="emptyAddBtn">+ Add Your First Trip</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer>
+  Built with <span>❤</span> by TravelNest &nbsp;·&nbsp; Your journeys, beautifully organised.
+</footer>
+
+<!-- ============================================================
+     SCROLL-TO-TOP BUTTON
+============================================================ -->
+<button class="scroll-top" id="scrollTop" title="Back to top">↑</button>
+
+<!-- ============================================================
+     TOAST NOTIFICATION CONTAINER
+============================================================ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     ADD / EDIT MODAL
+============================================================ -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Add New Trip</h2>
+      <button class="btn-close" id="closeModal">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Destination Name -->
+      <div class="form-group" id="fg-name">
+        <label for="fName">Destination Name *</label>
+        <input type="text" id="fName" placeholder="e.g. Santorini" maxlength="80" />
+        <span class="form-error">Please enter a destination name.</span>
+      </div>
+
+      <!-- Country / Location + Category -->
+      <div class="form-row">
+        <div class="form-group" id="fg-country">
+          <label for="fCountry">Country / Location *</label>
+          <input type="text" id="fCountry" placeholder="e.g. Greece" maxlength="80" />
+          <span class="form-error">Please enter a location.</span>
+        </div>
+        <div class="form-group" id="fg-category">
+          <label for="fCategory">Category *</label>
+          <select id="fCategory">
+            <option value="">Select…</option>
+            <option value="Beach">Beach</option>
+            <option value="Mountain">Mountain</option>
+            <option value="Historical">Historical</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Cultural">Cultural</option>
+            <option value="City">City</option>
+            <option value="Wildlife">Wildlife</option>
+            <option value="Road Trip">Road Trip</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="form-error">Please select a category.</span>
+        </div>
+      </div>
+
+      <!-- Budget + Travel Date -->
+      <div class="form-row">
+        <div class="form-group" id="fg-budget">
+          <label for="fBudget">Budget (INR) *</label>
+          <input type="number" id="fBudget" placeholder="e.g. 50000" min="0" />
+          <span class="form-error">Please enter a valid budget.</span>
+        </div>
+        <div class="form-group" id="fg-date">
+          <label for="fDate">Travel Date *</label>
+          <input type="date" id="fDate" />
+          <span class="form-error">Please pick a date.</span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group" id="fg-desc">
+        <label for="fDesc">Short Description *</label>
+        <textarea id="fDesc" placeholder="Describe your trip…" maxlength="400"></textarea>
+        <span class="form-error">Please add a description.</span>
+      </div>
+
+      <!-- Image URL (optional) -->
+      <div class="form-group">
+        <label for="fImage">Image URL <span style="font-weight:300;text-transform:none">(optional)</span></label>
+        <input type="url" id="fImage" placeholder="https://example.com/photo.jpg" />
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="cancelModal">Cancel</button>
+      <button class="btn-submit" id="submitForm">Save Trip</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONFIRM DELETE DIALOG
+============================================================ -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon" style="font-size:2rem;color:var(--coral)">&#10006;</div>
+    <h3>Delete this trip?</h3>
+    <p>This action cannot be undone. Are you sure you want to remove this destination?</p>
+    <div class="confirm-actions">
+      <button class="btn-confirm-no" id="confirmNo">Cancel</button>
+      <button class="btn-confirm-yes" id="confirmYes">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT — all logic lives here (no external files)
+     Sections:
+       A. State & Constants
+       B. Local Storage helpers
+       C. CRUD operations
+       D. Search / Filter / Sort logic
+       E. Render / UI helpers
+       F. Toast notifications
+       G. Modal helpers
+       H. Confirm dialog helpers
+       I. Stats updater
+       J. Event listeners
+       K. Init
+============================================================ -->
+<script>
+/* ── A. STATE & CONSTANTS ──────────────────────────────────── */
+// App state held in memory; persisted to localStorage on every mutation
+let trips         = [];   // all trip objects
+let editingId     = null; // id of trip being edited (null = add mode)
+let deleteId      = null; // id of trip pending deletion confirm
+let favFilter     = false; // whether we're showing only favourites
+let filterQuery   = '';
+let filterCat     = '';
+let sortKey       = 'newest';
+
+const STORAGE_KEY = 'travelnest_trips';
+
+const CATEGORY_EMOJI = {
+  Beach:'', Mountain:'', Historical:'', Adventure:'',
+  Cultural:'', City:'', Wildlife:'', 'Road Trip':'', Other:''
+};
+
+/* ── B. LOCAL STORAGE HELPERS ──────────────────────────────── */
+// Persist array to localStorage as JSON
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
+  } catch(e) {
+    console.error('Storage write failed', e);
+  }
+}
+
+// Load array from localStorage; return [] if nothing or corrupt
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) {
+    console.warn('Storage read failed; starting fresh', e);
+    return [];
+  }
+}
+
+/* ── C. CRUD OPERATIONS ────────────────────────────────────── */
+// CREATE: add a new trip object and persist
+function createTrip(data) {
+  const trip = {
+    id:          crypto.randomUUID(),
+    createdAt:   Date.now(),
+    name:        data.name.trim(),
+    country:     data.country.trim(),
+    category:    data.category,
+    budget:      parseFloat(data.budget),
+    travelDate:  data.travelDate,
+    description: data.description.trim(),
+    imageUrl:    data.imageUrl.trim(),
+    favourite:   false,
+  };
+  trips.unshift(trip); // newest first by default
+  saveToStorage();
+  updateStats();
+  return trip;
+}
+
+// UPDATE: merge data into existing trip by id
+function updateTrip(id, data) {
+  trips = trips.map(t => {
+    if (t.id !== id) return t;
+    return {
+      ...t,
+      name:        data.name.trim(),
+      country:     data.country.trim(),
+      category:    data.category,
+      budget:      parseFloat(data.budget),
+      travelDate:  data.travelDate,
+      description: data.description.trim(),
+      imageUrl:    data.imageUrl.trim(),
+    };
+  });
+  saveToStorage();
+  updateStats();
+}
+
+// DELETE: remove trip by id
+function deleteTrip(id) {
+  trips = trips.filter(t => t.id !== id);
+  saveToStorage();
+  updateStats();
+}
+
+// TOGGLE FAVOURITE: flip the favourite flag
+function toggleFavourite(id) {
+  trips = trips.map(t => t.id === id ? { ...t, favourite: !t.favourite } : t);
+  saveToStorage();
+  updateStats();
+}
+
+/* ── D. SEARCH / FILTER / SORT LOGIC ──────────────────────── */
+// Returns subset of trips matching current search/filter/sort state
+function getFilteredTrips() {
+  let result = [...trips];
+
+  // Favourite filter
+  if (favFilter) result = result.filter(t => t.favourite);
+
+  // Live search — matches name or country (case-insensitive)
+  if (filterQuery) {
+    const q = filterQuery.toLowerCase();
+    result = result.filter(t =>
+      t.name.toLowerCase().includes(q) ||
+      t.country.toLowerCase().includes(q)
+    );
+  }
+
+  // Category filter
+  if (filterCat) result = result.filter(t => t.category === filterCat);
+
+  // Sort
+  result.sort((a, b) => {
+    switch (sortKey) {
+      case 'oldest':      return a.createdAt - b.createdAt;
+      case 'budget-asc':  return a.budget - b.budget;
+      case 'budget-desc': return b.budget - a.budget;
+      case 'date-asc':    return new Date(a.travelDate) - new Date(b.travelDate);
+      case 'date-desc':   return new Date(b.travelDate) - new Date(a.travelDate);
+      case 'name-asc':    return a.name.localeCompare(b.name);
+      default:            return b.createdAt - a.createdAt; // newest
+    }
+  });
+
+  return result;
+}
+
+/* ── E. RENDER / UI HELPERS ────────────────────────────────── */
+// Re-render the cards grid from current filtered trips
+function renderCards() {
+  const grid      = document.getElementById('cardsGrid');
+  const emptyEl   = document.getElementById('emptyState');
+  const emptyMsg  = document.getElementById('emptyMsg');
+  const countEl   = document.getElementById('resultsCount');
+
+  const filtered = getFilteredTrips();
+
+  // Remove old cards (leave empty-state node in place)
+  const oldCards = grid.querySelectorAll('.card');
+  oldCards.forEach(c => c.remove());
+
+  if (filtered.length === 0) {
+    emptyEl.classList.add('show');
+    countEl.textContent = '';
+    // Tailor empty message based on context
+    if (trips.length === 0) {
+      emptyMsg.textContent = "You haven't added any destinations yet. Start planning your first adventure!";
+    } else {
+      emptyMsg.textContent = "No destinations match your search. Try different keywords or filters.";
+    }
+    return;
+  }
+
+  emptyEl.classList.remove('show');
+  countEl.textContent = `${filtered.length} trip${filtered.length !== 1 ? 's' : ''}`;
+
+  // Build and insert a card for each filtered trip
+  filtered.forEach((trip, i) => {
+    const card = buildCard(trip, i);
+    grid.insertBefore(card, emptyEl);
+  });
+}
+
+// Build a single card DOM element for a trip
+function buildCard(trip, index) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.animationDelay = `${index * 40}ms`;
+  card.dataset.id = trip.id;
+
+  // Format budget in INR with commas (Indian number system)
+  const budget = '₹' + trip.budget.toLocaleString('en-IN');
+
+  // Format date nicely
+  let dateStr = '—';
+  if (trip.travelDate) {
+    try {
+      dateStr = new Date(trip.travelDate + 'T00:00:00').toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' });
+    } catch(e) { dateStr = trip.travelDate; }
+  }
+
+  const catEmoji = CATEGORY_EMOJI[trip.category] || '';
+  const favIcon  = trip.favourite ? '♥' : '♡';
+
+  card.innerHTML = `
+    <div class="card-img-wrap">
+      ${trip.imageUrl
+        ? `<img src="${escHtml(trip.imageUrl)}" alt="${escHtml(trip.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="card-img-placeholder" style="display:none"><span style="font-size:1.8rem;color:var(--text-3)">&#9992;</span><span>No image</span></div>`
+        : `<div class="card-img-placeholder"><span class="ph-icon" style="font-size:1.8rem;color:var(--text-3)">&#9992;</span><span>No image</span></div>`
+      }
+      <span class="card-badge">${escHtml(trip.category)}</span>
+      <button class="card-fav ${trip.favourite ? 'active' : ''}" data-id="${trip.id}" title="Toggle favourite">${favIcon}</button>
+    </div>
+    <div class="card-body">
+      <div class="card-name" title="${escHtml(trip.name)}">${escHtml(trip.name)}</div>
+      <div class="card-location">${escHtml(trip.country)}</div>
+      <p class="card-desc">${escHtml(trip.description)}</p>
+      <div class="card-meta">
+        <span class="meta-chip budget">${budget}</span>
+        <span class="meta-chip date">${dateStr}</span>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn-edit" data-id="${trip.id}">Edit</button>
+      <button class="btn-del"  data-id="${trip.id}">Delete</button>
+    </div>
+  `;
+
+  return card;
+}
+
+// Simple HTML escape to prevent XSS
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+/* ── F. TOAST NOTIFICATIONS ────────────────────────────────── */
+// Show a toast message of type 'success' | 'error' | 'warning'
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const icons = { success: '&#10003;', error: '&#10007;', warning: '&#9888;' };
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${message}</span>`;
+  container.appendChild(toast);
+
+  // Auto-dismiss after 3 s
+  setTimeout(() => {
+    toast.classList.add('fadeout');
+    toast.addEventListener('animationend', () => toast.remove());
+  }, 3000);
+}
+
+/* ── G. MODAL HELPERS ──────────────────────────────────────── */
+function openModal(tripId = null) {
+  editingId = tripId;
+  const overlay = document.getElementById('modalOverlay');
+  const title   = document.getElementById('modalTitle');
+  const btnSave = document.getElementById('submitForm');
+
+  clearFormErrors();
+
+  if (tripId) {
+    // EDIT mode — pre-fill form with existing trip data
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return;
+    title.textContent    = 'Edit Trip';
+    btnSave.textContent  = 'Update Trip';
+    document.getElementById('fName').value     = trip.name;
+    document.getElementById('fCountry').value  = trip.country;
+    document.getElementById('fCategory').value = trip.category;
+    document.getElementById('fBudget').value   = trip.budget;
+    document.getElementById('fDate').value     = trip.travelDate;
+    document.getElementById('fDesc').value     = trip.description;
+    document.getElementById('fImage').value    = trip.imageUrl;
+  } else {
+    // ADD mode — blank form
+    title.textContent    = 'Add New Trip';
+    btnSave.textContent  = 'Save Trip';
+    document.getElementById('fName').value     = '';
+    document.getElementById('fCountry').value  = '';
+    document.getElementById('fCategory').value = '';
+    document.getElementById('fBudget').value   = '';
+    document.getElementById('fDate').value     = '';
+    document.getElementById('fDesc').value     = '';
+    document.getElementById('fImage').value    = '';
+  }
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('fName').focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  editingId = null;
+}
+
+/* ── G2. FORM VALIDATION ───────────────────────────────────── */
+// Returns true when form is valid; shows inline errors otherwise
+function validateForm() {
+  let valid = true;
+  clearFormErrors();
+
+  const checks = [
+    { id: 'fg-name',    val: document.getElementById('fName').value.trim() },
+    { id: 'fg-country', val: document.getElementById('fCountry').value.trim() },
+    { id: 'fg-category',val: document.getElementById('fCategory').value },
+    { id: 'fg-budget',  val: document.getElementById('fBudget').value, numeric: true },
+    { id: 'fg-date',    val: document.getElementById('fDate').value },
+    { id: 'fg-desc',    val: document.getElementById('fDesc').value.trim() },
+  ];
+
+  checks.forEach(c => {
+    const empty = !c.val;
+    const badNum = c.numeric && (isNaN(parseFloat(c.val)) || parseFloat(c.val) < 0);
+    if (empty || badNum) {
+      document.getElementById(c.id).classList.add('has-error');
+      valid = false;
+    }
+  });
+
+  return valid;
+}
+
+function clearFormErrors() {
+  document.querySelectorAll('.form-group.has-error').forEach(el => el.classList.remove('has-error'));
+}
+
+/* ── H. CONFIRM DIALOG HELPERS ─────────────────────────────── */
+function openConfirm(id) {
+  deleteId = id;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+
+function closeConfirm() {
+  deleteId = null;
+  document.getElementById('confirmOverlay').classList.remove('open');
+}
+
+/* ── I. STATS UPDATER ──────────────────────────────────────── */
+// Re-compute and display the four stat numbers
+function updateStats() {
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = trips.filter(t => t.travelDate >= today).length;
+  const cats = new Set(trips.map(t => t.category)).size;
+  const favs = trips.filter(t => t.favourite).length;
+
+  animateNum('statTotal',    trips.length);
+  animateNum('statCats',     cats);
+  animateNum('statUpcoming', upcoming);
+  animateNum('statFavs',     favs);
+}
+
+// Animate a number counter for visual polish
+function animateNum(elId, target) {
+  const el = document.getElementById(elId);
+  const current = parseInt(el.textContent) || 0;
+  if (current === target) return;
+  const step = target > current ? 1 : -1;
+  let v = current;
+  const t = setInterval(() => {
+    v += step;
+    el.textContent = v;
+    if (v === target) clearInterval(t);
+  }, 30);
+}
+
+/* ── J. EVENT LISTENERS ─────────────────────────────────────── */
+
+// Open modal via navbar button
+document.getElementById('openModal').addEventListener('click', () => openModal());
+
+// Open modal via hero CTA
+document.getElementById('heroCta').addEventListener('click', () => openModal());
+
+// Open modal via empty-state button
+document.getElementById('emptyAddBtn').addEventListener('click', () => openModal());
+
+// Close modal
+document.getElementById('closeModal').addEventListener('click', closeModal);
+document.getElementById('cancelModal').addEventListener('click', closeModal);
+
+// Close modal on backdrop click
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// Submit form (add or update)
+document.getElementById('submitForm').addEventListener('click', () => {
+  if (!validateForm()) {
+    showToast('Please fill in all required fields.', 'error');
+    return;
+  }
+
+  const data = {
+    name:        document.getElementById('fName').value,
+    country:     document.getElementById('fCountry').value,
+    category:    document.getElementById('fCategory').value,
+    budget:      document.getElementById('fBudget').value,
+    travelDate:  document.getElementById('fDate').value,
+    description: document.getElementById('fDesc').value,
+    imageUrl:    document.getElementById('fImage').value,
+  };
+
+  if (editingId) {
+    updateTrip(editingId, data);
+    showToast(`"${data.name}" has been updated.`, 'success');
+  } else {
+    createTrip(data);
+    showToast(`"${data.name}" added to your trips.`, 'success');
+  }
+
+  closeModal();
+  renderCards();
+});
+
+// Delegation on cards grid — handles Edit, Delete, Favourite clicks
+document.getElementById('cardsGrid').addEventListener('click', e => {
+  const editBtn = e.target.closest('.btn-edit');
+  const delBtn  = e.target.closest('.btn-del');
+  const favBtn  = e.target.closest('.card-fav');
+
+  if (editBtn) {
+    openModal(editBtn.dataset.id);
+  } else if (delBtn) {
+    openConfirm(delBtn.dataset.id);
+  } else if (favBtn) {
+    toggleFavourite(favBtn.dataset.id);
+    const trip = trips.find(t => t.id === favBtn.dataset.id);
+    if (trip) {
+      favBtn.textContent = trip.favourite ? '♥' : '♡';
+      favBtn.classList.toggle('active', trip.favourite);
+      showToast(trip.favourite ? 'Added to favourites.' : 'Removed from favourites.', trip.favourite ? 'success' : 'warning');
+    }
+    if (favFilter) renderCards(); // re-render if in favourites mode
+    updateStats();
+  }
+});
+
+// Confirm delete — YES
+document.getElementById('confirmYes').addEventListener('click', () => {
+  if (!deleteId) return;
+  const trip = trips.find(t => t.id === deleteId);
+  const name = trip ? trip.name : 'Trip';
+  deleteTrip(deleteId);
+  closeConfirm();
+  renderCards();
+  showToast(`"${name}" has been deleted.`, 'error');
+});
+
+// Confirm delete — NO
+document.getElementById('confirmNo').addEventListener('click', closeConfirm);
+document.getElementById('confirmOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeConfirm();
+});
+
+// Live search input — filter on every keystroke
+document.getElementById('searchInput').addEventListener('input', e => {
+  filterQuery = e.target.value;
+  renderCards();
+});
+
+// Category filter dropdown
+document.getElementById('categoryFilter').addEventListener('change', e => {
+  filterCat = e.target.value;
+  renderCards();
+});
+
+// Sort dropdown
+document.getElementById('sortSelect').addEventListener('change', e => {
+  sortKey = e.target.value;
+  renderCards();
+});
+
+// Favourites filter toggle button
+document.getElementById('favFilterBtn').addEventListener('click', function() {
+  favFilter = !favFilter;
+  this.classList.toggle('active', favFilter);
+  document.getElementById('sectionTitle').textContent = favFilter ? 'Favourite Trips' : 'All Trips';
+  renderCards();
+});
+
+// Dark / Light mode toggle
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('travelnest_theme', isDark ? 'light' : 'dark');
+});
+
+// Scroll-to-top button visibility + click
+const scrollBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  scrollBtn.classList.toggle('visible', window.scrollY > 400);
+});
+scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// Close modals on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal();
+    closeConfirm();
+  }
+});
+
+/* ── K. INIT ─────────────────────────────────────────────────── */
+// Called once on page load
+function init() {
+  // Restore saved theme
+  const savedTheme = localStorage.getItem('travelnest_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.getElementById('themeToggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+  // Load trips from localStorage (READ operation)
+  trips = loadFromStorage();
+
+  // Seed demo data if storage is empty (first visit)
+  if (trips.length === 0) {
+    const today = new Date();
+    const future = (d) => {
+      const dt = new Date(today);
+      dt.setDate(dt.getDate() + d);
+      return dt.toISOString().slice(0, 10);
+    };
+
+    trips = [
+      {
+        id: crypto.randomUUID(), createdAt: Date.now() - 5000,
+        name: 'Santorini Sunset Escape', country: 'Greece',
+        category: 'Beach', budget: 265000, travelDate: future(45),
+        description: 'Explore the stunning whitewashed villages, dramatic caldera views, and world-famous sunsets over the Aegean Sea.',
+        imageUrl: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=600&q=80',
+        favourite: true,
+      },
+      {
+        id: crypto.randomUUID(), createdAt: Date.now() - 4000,
+        name: 'Swiss Alps Adventure', country: 'Switzerland',
+        category: 'Mountain', budget: 456500, travelDate: future(90),
+        description: 'Hike iconic trails, ride scenic mountain railways, and breathe the freshest air on earth amid snow-capped peaks.',
+        imageUrl: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&q=80',
+        favourite: false,
+      },
+      {
+        id: crypto.randomUUID(), createdAt: Date.now() - 3000,
+        name: 'Angkor Wat Temples', country: 'Cambodia',
+        category: 'Historical', budget: 149400, travelDate: future(120),
+        description: 'Walk through ancient temple complexes lost to the jungle for centuries — a spiritual journey through Khmer history.',
+        imageUrl: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=600&q=80',
+        favourite: false,
+      },
+      {
+        id: crypto.randomUUID(), createdAt: Date.now() - 2000,
+        name: 'Tokyo Neon Nights', country: 'Japan',
+        category: 'City', budget: 340300, travelDate: future(60),
+        description: 'Lose yourself in the electric energy of Tokyo — from serene shrines to futuristic districts and world-class cuisine.',
+        imageUrl: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80',
+        favourite: true,
+      },
+      {
+        id: crypto.randomUUID(), createdAt: Date.now() - 1000,
+        name: 'Serengeti Safari', country: 'Tanzania',
+        category: 'Wildlife', budget: 597600, travelDate: future(180),
+        description: 'Witness the Great Migration and encounter the Big Five in one of Africa\'s most pristine wilderness areas.',
+        imageUrl: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600&q=80',
+        favourite: false,
+      },
+    ];
+    saveToStorage();
+  }
+
+  updateStats();
+  renderCards();
+}
+
+// Run on load
+init();
+</script>
+</body>
+</html>
